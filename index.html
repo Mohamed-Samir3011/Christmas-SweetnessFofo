@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Christmas Sweetness Checker</title>
+<link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas&display=swap" rel="stylesheet">
+<style>
+body {
+  margin:0;
+  padding:0;
+  height:100vh;
+  font-family: 'Mountains of Christmas', cursive;
+  overflow:hidden;
+  background: url('images/christmas-tall-mobile.jpg') no-repeat top center fixed;
+  background-size: cover;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+}
+.box {
+  background: rgba(0,0,0,0.6);
+  padding:30px;
+  border-radius:15px;
+  text-align:center;
+  width:350px;
+  z-index:10;
+  position:relative;
+}
+.music-btn {
+  background: #ff4d4d;
+  color:white;
+  padding:12px 20px;
+  border-radius:12px;
+  margin-bottom:15px;
+  cursor:pointer;
+  font-weight:bold;
+  font-size:16px;
+}
+#nameInput {
+  width: 90%;
+  padding: 14px;
+  border-radius: 25px;
+  border: none;
+  margin-top: 20px;
+  outline: none;
+  font-size:16px;
+  font-weight:bold;
+  font-family: 'Mountains of Christmas', cursive;
+  color:black;
+  background: repeating-linear-gradient(
+    45deg,
+    #990000,
+    #990000 12px,
+    #ffffff 12px,
+    #ffffff 24px
+  );
+  box-shadow: 0 6px 10px rgba(0,0,0,0.4), 0 0 15px rgba(153,0,0,0.5);
+  text-align:center;
+  position:relative;
+  left:50%;
+  transform: translateX(-50%) rotate(-3deg);
+}
+#nameInput::placeholder { color:black; font-weight:bold; font-family:'Mountains of Christmas', cursive; }
+#showBtn {
+  background: repeating-linear-gradient(45deg,#ff0000,#ff0000 10px,#ffffff 10px,#ffffff 20px);
+  border-radius:50px;
+  font-size:24px;
+  padding:12px 28px;
+  border:none;
+  cursor:pointer;
+  margin-top:20px;
+  position:relative;
+  transition: transform 0.3s ease;
+  box-shadow:0 6px 0 #990000,0 6px 12px rgba(0,0,0,0.3);
+}
+#showBtn::after {
+  content:"🍬";
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  text-shadow:2px 2px 3px rgba(0,0,0,0.5);
+  font-size:24px;
+  pointer-events:none;
+}
+#errorMessage {
+  margin-top: 40px;
+  font-weight:bold;
+  font-size:16px;
+  color:red;
+  min-height:22px;
+}
+.snowflake {
+  position:fixed;
+  top:-10px;
+  background:white;
+  border-radius:50%;
+  opacity:0.2;
+  pointer-events:none;
+  animation-name:fall;
+  animation-iteration-count:infinite;
+  z-index:5;
+}
+@keyframes fall {0%{transform:translateY(0);}100%{transform:translateY(100vh);}}
+</style>
+</head>
+<body>
+
+<div class="box">
+  <div class="music-btn" id="musicBtn" onclick="startMusic()">🎵 Click to play music</div>
+  <h2>Check Your Sweetness Level 🍫</h2>
+  <p>(Write your first name in English)</p>
+  <input type="text" id="nameInput" placeholder="Enter your first name in English">
+  <button id="showBtn"></button>
+  <div id="errorMessage"></div>
+
+  <audio id="music">
+    <source src="audio/intro.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="bellSound">
+    <source src="audio/bell.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<script>
+const showBtn = document.getElementById("showBtn");
+const errorMessage = document.getElementById("errorMessage");
+const wrongMessages = [
+  "Only one name reaches peak sweetness 💖",
+  "The chocolate disagrees with this name 🍫❌",
+  "Santa says: wrong name 🎅❌",
+  "Ho Ho Ho… that’s not the sweet one 🎄",
+  "Only the chosen name passes 🍬",
+  "Sweetness level: 0% ❌",
+  "Access denied 🚫 Not sweet enough",
+  "Oops! That name isn’t sweet enough 🍫✨",
+  "This name needs more sugar 🍬😅"
+];
+
+function startMusic(){
+  const music = document.getElementById("music");
+  music.play();
+  document.getElementById("musicBtn").style.display="none";
+  const bell = document.getElementById("bellSound");
+  bell.volume = 0.7;
+  bell.play();
+}
+
+// Snow
+for(let i=0;i<60;i++){
+  const snow = document.createElement('div');
+  snow.className='snowflake';
+  let size=Math.random()*6+2;
+  snow.style.width=snow.style.height=size+'px';
+  snow.style.left=Math.random()*100+'vw';
+  snow.style.animationDuration=(Math.random()*5+5)+'s';
+  snow.style.opacity=Math.random()*0.3+0.1;
+  document.body.appendChild(snow);
+}
+
+// زرار 🍬
+let clickStage=0;
+showBtn.addEventListener("click",()=>{
+  const nameInput = document.getElementById("nameInput").value.trim();
+  const name = nameInput.toLowerCase();
+  const correctNames = ["farah"];
+
+  if(correctNames.includes(name)){
+    // الاسم صحيح: الرسالة تختفي
+    errorMessage.textContent = "";
+
+    // تحريك الزرار 4 مرات
+    clickStage++;
+    if(clickStage===1){
+      showBtn.style.transform="translateX(100px)"; // يمين
+    } else if(clickStage===2){
+      showBtn.style.transform="translateX(-100px)"; // يسار
+    } else if(clickStage===3){
+      showBtn.style.transform="translateX(0px)"; // وسط
+    } else if(clickStage===4){
+      window.location.href="result.html?name="+encodeURIComponent(name);
+    }
+  } else {
+    // الاسم غلط: جملة جديدة تظهر
+    const randomIndex = Math.floor(Math.random()*wrongMessages.length);
+    const msg = wrongMessages[randomIndex];
+    errorMessage.textContent = msg;
+
+    // هز الزرار
+    showBtn.style.transition="transform 0.1s";
+    showBtn.style.transform="translateX(-10px)";
+    setTimeout(()=>{ showBtn.style.transform="translateX(10px)"; },100);
+    setTimeout(()=>{ showBtn.style.transform="translateX(0)"; },200);
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sweetness Result</title>
+<link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  min-height:100vh;
+  background:url("images/background-result.jpg") no-repeat center center/cover;
+  font-family:'Mountains of Christmas', cursive;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  color:white;
+  overflow:hidden;
+  position:relative;
+  padding-top:40px;
+  text-align:center;
+}
+
+/* SNOW */
+.snowflake{position:absolute;top:-10px;width:10px;height:10px;background:white;border-radius:50%;opacity:0.6;animation:fall linear infinite;}
+@keyframes fall{0%{transform:translateY(0);}100%{transform:translateY(100vh);}}
+
+/* MOVING CHARACTERS */
+.movingChar{position:absolute;width:60px;height:60px;opacity:0.5;}
+
+/* CONTAINER */
+.container{position:relative;z-index:2;width:90%;max-width:420px;text-align:center;}
+
+/* READY BUTTON */
+#readyBtn{
+  padding:22px 34px;
+  font-size:26px;
+  border:none;
+  border-radius:25px;
+  background:linear-gradient(135deg,#7a0000,#ff3c3c);
+  color:white;
+  cursor:pointer;
+  box-shadow:0 10px 25px rgba(0,0,0,0.6), inset 0 0 10px rgba(255,255,255,0.3);
+  animation:christmasPulse 1.8s infinite;
+  margin-top:20px;
+}
+@keyframes christmasPulse{0%{transform:scale(1);}50%{transform:scale(1.08) rotate(-1deg);}100%{transform:scale(1);}}
+#readyBtn:active{transform:scale(0.95);}
+
+/* COUNTDOWN */
+#countdown{display:none;font-size:90px;margin-top:20px;}
+
+/* VIDEO */
+#videoContainer{display:none;margin:10px auto 0 auto;width:300px;height:180px;}
+#videoContainer video{width:100%;height:100%;}
+
+/* HORIZONTAL BAR */
+#barContainer{
+  width:300px;height:40px;background:#333;border-radius:25px;margin:15px auto 0 auto;overflow:hidden;position:relative;display:none;
+}
+#redBar{width:0%;height:100%;background:linear-gradient(to right, lime, red);border-radius:25px;transition:width 0.05s linear;}
+
+/* PERCENT TEXT */
+#percentText{text-align:center;color:white;font-size:24px;margin-top:10px;display:none;}
+
+/* MESSAGE TEXT */
+#messageText{
+  font-size:18px;
+  font-weight:bold;
+  text-shadow:2px 2px 6px rgba(0,0,0,0.7);
+  line-height:1.5;
+  margin-top:20px;
+  display:none;
+  text-align:center;
+}
+
+/* INSTRUCTIONS BUTTON */
+#instructionsBtn{
+  display:none;
+  padding:15px 25px;
+  margin-top:20px;
+  font-size:20px;
+  border:none;
+  border-radius:20px;
+  background:linear-gradient(135deg,#7a0000,#ff3c3c);
+  color:white;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,0.6), inset 0 0 8px rgba(255,255,255,0.3);
+  animation:christmasPulse 1.5s infinite;
+}
+#instructionsBtn:active{transform:scale(0.95);}
+</style>
+</head>
+<body>
+
+<!-- SNOW -->
+<div id="snowContainer"></div>
+
+<!-- MOVING CHARACTERS -->
+<img src="images/santa-small.png" class="movingChar" id="santa1">
+<img src="images/santa-small.png" class="movingChar" id="santa2">
+<img src="images/santa-small.png" class="movingChar" id="santa3">
+<img src="images/reindeer-small.png" class="movingChar" id="reindeer1">
+<img src="images/reindeer-small.png" class="movingChar" id="reindeer2">
+<img src="images/reindeer-small.png" class="movingChar" id="reindeer3">
+
+<div class="container">
+  <button id="readyBtn">Are you Ready? 🎄</button>
+  <div id="countdown">3</div>
+
+  <div id="videoContainer">
+    <video id="santaVideo" src="video/santa-2.mp4" muted loop></video>
+  </div>
+
+  <div id="barContainer">
+    <div id="redBar"></div>
+  </div>
+  <div id="percentText">0%</div>
+
+  <div id="messageText"></div>
+  <button id="instructionsBtn" onclick="goToLast()">🍬 Click me!</button>
+</div>
+
+<audio id="music" src="audio/result.mp3"></audio>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const name = params.get("name")?.toLowerCase();
+
+const readyBtn = document.getElementById("readyBtn");
+const countdown = document.getElementById("countdown");
+const videoContainer = document.getElementById("videoContainer");
+const santaVideo = document.getElementById("santaVideo");
+const barContainer = document.getElementById("barContainer");
+const redBar = document.getElementById("redBar");
+const percentText = document.getElementById("percentText");
+const messageText = document.getElementById("messageText");
+const instructionsBtn = document.getElementById("instructionsBtn");
+const music = document.getElementById("music");
+
+// الشخصيات العشوائية
+const chars = [...document.querySelectorAll('.movingChar')];
+chars.forEach(c=>{ c.style.top = Math.random()*80 + 'vh'; c.style.left = Math.random()*80 + 'vw'; });
+function randomMove(){ chars.forEach(c=>{ c.style.transition='all 5s linear'; c.style.top=Math.random()*80+'vh'; c.style.left=Math.random()*80+'vw'; }); }
+setInterval(randomMove,5000);
+
+// تساقط الثلج
+const snowContainer = document.getElementById('snowContainer');
+for(let i=0;i<50;i++){
+  const snow=document.createElement('div');
+  snow.classList.add('snowflake');
+  snow.style.left=Math.random()*100+'vw';
+  snow.style.width=snow.style.height=Math.random()*6+4+'px';
+  snow.style.opacity=0.6;
+  snow.style.animationDuration=(Math.random()*5+5)+'s';
+  snowContainer.appendChild(snow);
+}
+
+let value=0;
+const maxValue=(name==="farah")?200:50;
+const finalMessage = "This chocolate is delicious, but honestly? You've already reached peak sweetness. So, I figured you might need these instructions to navigate this sweet overload gracefully 🎄🍬🍫🎅🤶";
+
+readyBtn.onclick=()=>{
+  readyBtn.style.display="none";
+  countdown.style.display="block";
+  let count=3;
+  countdown.textContent=count;
+
+  const timer=setInterval(()=>{
+    count--;
+    if(count===0){
+      clearInterval(timer);
+      countdown.style.display="none";
+      startVideoAndBar();
+    } else { countdown.textContent=count; }
+  },1000);
+};
+
+function startVideoAndBar(){
+  // نعرض الفيديو والبار
+  videoContainer.style.display="block";
+  santaVideo.play().catch(()=>{ console.log('Autoplay prevented'); });
+  barContainer.style.display="block";
+  percentText.style.display="block";
+  music.volume=0.7;
+  music.play();
+
+  // إضافة النوتة بعد بدء العداد
+  let noteDiv = document.createElement('div');
+  noteDiv.id = 'note';
+  noteDiv.textContent = "Enjoy the music first and then click on the button 💃";
+  noteDiv.style.position = 'fixed';
+  noteDiv.style.bottom = '15px';
+  noteDiv.style.left = '15px';
+  noteDiv.style.fontSize = '18px';
+  noteDiv.style.fontWeight = 'bold';
+  noteDiv.style.color = '#8B0000';
+  noteDiv.style.textShadow = '1px 1px 2px rgba(0,0,0,0.5)';
+  document.body.appendChild(noteDiv);
+
+  const interval = setInterval(()=>{
+    value += (name==="farah")?2:1;
+    if(value>maxValue) value=maxValue;
+    let percent = (value/maxValue)*100;
+    redBar.style.width = percent+"%";
+    percentText.textContent = Math.round(percent) + "%";
+
+    if(value>=maxValue){
+      clearInterval(interval);
+      showMessageTyping(finalMessage, ()=>{
+        instructionsBtn.style.display="inline-block";
+        santaVideo.loop=true;
+      });
+    }
+  },50);
+}
+
+function showMessageTyping(text, callback){
+  messageText.textContent="";
+  messageText.style.display="block";
+  let i=0;
+  const interval=setInterval(()=>{
+    messageText.textContent+=text[i];
+    i++;
+    if(i>=text.length){
+      clearInterval(interval);
+      callback();
+    }
+  },35);
+}
+
+// الزرار يفتح الصفحة الأخيرة
+function goToLast() {
+  window.location.href = "last.html";
+}
+</script>
+</body>
+</html>
