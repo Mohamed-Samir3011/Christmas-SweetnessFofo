@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instructions</title>
+<link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heliotrope&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  min-height:100vh;
+  background:url("last.jpg") no-repeat center center/cover;
+  background-size:cover;
+  font-family:'Mountains of Christmas', cursive;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+  overflow:hidden;
+  position:relative;
+  flex-direction:column;
+}
+
+/* SNOW */
+.snowflake{position:absolute;top:-10px;width:10px;height:10px;background:white;border-radius:50%;opacity:0.6;animation:fall linear infinite;}
+@keyframes fall{0%{transform:translateY(0);}100%{transform:translateY(100vh);}}
+
+/* CONTAINER */
+.container{
+  background:rgba(0,0,0,0.45);
+  padding:25px 20px;
+  border-radius:15px;
+  box-shadow:0 10px 20px rgba(0,0,0,0.6);
+  max-width:90%;
+  width:500px;
+  text-align:left;
+  display:none; 
+  position:relative;
+  z-index:2;
+  margin-bottom:20px; /* مسافة بسيطة للزرارين */
+}
+
+/* INTRO TEXT */
+#introText{
+  font-size:18px; 
+  font-weight:bold;
+  margin-bottom:20px;
+  text-shadow:2px 2px 8px rgba(0,0,0,0.7);
+}
+
+/* RULES */
+.rule{
+  font-size:16px;
+  margin-bottom:15px;
+  opacity:0; 
+  text-shadow:1px 1px 4px rgba(0,0,0,0.7);
+  font-weight:bold;
+  transition: opacity 1s;
+}
+
+/* SIGNATURE */
+#signature{
+  font-family:'Heliotrope', cursive;
+  font-size:22px;
+  color:gold;
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
+  margin-top:25px;
+  text-align:left;
+}
+
+/* VIEW INSTRUCTIONS BUTTON */
+#viewBtn{
+  padding:20px 40px;
+  font-size:24px;
+  border:none;
+  border-radius:20px;
+  background:linear-gradient(135deg,#7a0000,#ff3c3c);
+  color:white;
+  cursor:pointer;
+  box-shadow:0 10px 25px rgba(0,0,0,0.6), inset 0 0 10px rgba(255,255,255,0.3);
+  font-family:'Mountains of Christmas', cursive;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+}
+#viewBtn:active{transform:translate(-50%,-50%) scale(0.95);}
+
+/* BUTTONS AFTER FADE IN */
+#buttonsContainer{
+  display:none; 
+  gap:15px;
+  margin-bottom:30px; 
+}
+#buttonsContainer button{
+  padding:12px 25px;
+  font-size:18px;
+  border:none;
+  border-radius:15px;
+  cursor:pointer;
+  box-shadow:0 6px 15px rgba(0,0,0,0.5);
+}
+#returnBtn{background:#888;color:white;}
+#rateBtn{background:green;color:white;}
+</style>
+</head>
+<body>
+
+<div id="snowContainer"></div>
+
+<button id="viewBtn">View Instructions</button>
+
+<div class="container" id="instructionsContainer">
+  <div id="introText"></div>
+  <div id="rule1" class="rule">1- One piece a day is the limit. 🍫 (Your system is already 99% sugar, we have to be careful!)</div>
+  <div id="rule2" class="rule">2- Exceeding the dose may be dangerous. ⚠️ (The world might not be able to handle that much sweetness in one place.)</div>
+  <div id="rule3" class="rule">3- Savor every bite slowly. 😋 (The chocolate try its best to match your level.)</div>
+  <div id="signature">Mr: Sweet chili 🎅🔥</div>
+</div>
+
+<div id="buttonsContainer">
+  <button id="returnBtn">Return</button>
+  <button id="rateBtn">Rate the chocolate</button>
+</div>
+
+<audio id="music" src="last.mp3" loop></audio>
+
+<script>
+// ثلج
+const snowContainer = document.getElementById('snowContainer');
+for(let i=0;i<50;i++){
+  const snow=document.createElement('div');
+  snow.classList.add('snowflake');
+  snow.style.left=Math.random()*100+'vw';
+  snow.style.width=snow.style.height=Math.random()*6+4+'px';
+  snow.style.opacity=0.6;
+  snow.style.animationDuration=(Math.random()*5+5)+'s';
+  snowContainer.appendChild(snow);
+}
+
+// typing intro
+const intro = "Warning: You’ve officially hit the maximum level of sweetness! To keep things under control while you enjoy these chocolates, please follow these safety protocols:";
+const introEl = document.getElementById("introText");
+
+const viewBtn = document.getElementById('viewBtn');
+const instructionsContainer = document.getElementById('instructionsContainer');
+const music = document.getElementById('music');
+const buttonsContainer = document.getElementById('buttonsContainer');
+
+viewBtn.addEventListener('click', ()=>{
+  viewBtn.style.display='none';
+  instructionsContainer.style.display='block';
+  music.play().catch(()=>console.log("Autoplay prevented"));
+  
+  let i=0;
+  const interval = setInterval(()=>{
+    introEl.textContent += intro[i];
+    i++;
+    if(i>=intro.length){
+      clearInterval(interval);
+      showRules(()=>{buttonsContainer.style.display='flex';});
+    }
+  },30);
+});
+
+function showRules(callback){
+  const rules = [document.getElementById("rule1"), document.getElementById("rule2"), document.getElementById("rule3")];
+  let idx=0;
+  function showNext(){
+    if(idx<rules.length){
+      rules[idx].style.opacity=0;
+      rules[idx].style.display='block';
+      let opacity = 0;
+      const fade = setInterval(()=>{
+        opacity +=0.02;
+        rules[idx].style.opacity = opacity;
+        if(opacity>=1){
+          clearInterval(fade);
+          idx++;
+          showNext();
+        }
+      },30);
+    } else {
+      if(callback) callback();
+    }
+  }
+  showNext();
+}
+
+// return
+document.getElementById('returnBtn').addEventListener('click', ()=>{
+  window.location.href = "index.html";
+});
+// rate
+document.getElementById('rateBtn').addEventListener('click', ()=>{
+  window.open("https://wa.me/201283007423","_blank");
+});
+</script>
+</body>
+</html>
